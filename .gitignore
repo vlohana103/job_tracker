@@ -1,0 +1,28 @@
+cat << 'EOF' > .gitignore
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Database
+*.db
+*.sqlite3
+
+# Personal data / Project Files
+expense.json
+*.csv
+
+# IDE 
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+EOF
