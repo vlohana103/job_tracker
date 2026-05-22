@@ -4,7 +4,17 @@ import jobs
 tracker = {}
 
 def create():
-    pass
+    id_count = len(tracker) + 1
+
+    company_name = input("Company Name:\n")
+    job_title = input("Job Title:\n")
+    url = input("URL:\n")
+    status = input("Status:\n")
+    date_applied = input("Date Applied:") # use Pythons built in system clock for this
+    last_updated = input("Date Updated:\n")
+
+    tracker[id_count] = jobs.Job_Application(id_count, company_name, job_title, url, status, date_applied, last_updated)
+
 
 def read():
     pass
@@ -32,22 +42,24 @@ while True:
         while True:
             print("*** Using Job Application Tracker ***")
             ask = input("Press:\n 1 to Add\n 2 to View\n 3 to Update\n 4 to Delete\n 5 to Return to the Main Menu?\n")
-            #C.R.U.D
-            if ask == "1":
-                pass
+            # C.R.U.D
             # Create
-            elif ask == "2":
-                pass
+            if ask == "1":
+                create()
             # Read
+            elif ask == "2":
+                read()
+            # Update
             elif ask == "3":
                 pass
-            # Update
+            # Delete
             elif ask == "4":
                 pass
-            # Delete
+            # Return to Main Menu
             elif ask == "5":
                 print("Returning to Main Menu...\n")
                 break
+            # Invalid Input
             else:
                 print("Invalid Input... \n")
 
