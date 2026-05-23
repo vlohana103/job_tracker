@@ -1,7 +1,7 @@
 import jobs
 
-# C.R.U.D
 tracker = {}
+# C.R.U.D
 
 def create():
     id_count = len(tracker) + 1
@@ -27,7 +27,32 @@ def read():
 
 
 def update():
-    pass
+    job_search = int(input("Enter the JOB ID you would like to update:\n"))
+    if job_search in tracker:
+        print(f"You are updating: {tracker[job_search].company_name}")
+
+        print("What would you like to change?")
+        choice = int(input("1. Update: Job Title\n2. Update: Url\n3. Update: Status\n4. Update: Date Updated"))
+
+        if choice == 1:
+            new_Job_title = input("Enter Updated Job Title:\n")
+            tracker[job_search].job_title = new_Job_title
+            print(f"Job Title updated to {new_Job_title}")
+        elif choice == 2:
+            new_URL = input("Enter Updated URL\n")
+            tracker[job_search].url = new_URL
+            print(f"URL updated to {new_URL}")
+        elif choice == 3:
+            new_status = input("Enter Updated Status\n")
+            tracker[job_search].status = new_status
+            print(f"Status updated to {new_status}")
+        elif choice == 4:
+            new_Date = input("Enter Updated Date\n")
+            tracker[job_search].last_updated = new_Date
+            print(f"Last Updated field changed to {new_Date}")
+
+    else:
+        print("No log associated with that job ID\n")
 
 def delete():
     pass
@@ -60,7 +85,7 @@ while True:
                 read()
             # Update
             elif ask == "3":
-                pass
+                update()
             # Delete
             elif ask == "4":
                 pass
