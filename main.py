@@ -10,14 +10,21 @@ def create():
     job_title = input("Job Title:\n")
     url = input("URL:\n")
     status = input("Status:\n")
-    date_applied = input("Date Applied:") # use Pythons built in system clock for this
+    date_applied = input("Date Applied:\n") # use Pythons built in system clock for this
     last_updated = input("Date Updated:\n")
 
     tracker[id_count] = jobs.Job_Application(id_count, company_name, job_title, url, status, date_applied, last_updated)
 
 
 def read():
-    pass
+    if len(tracker) == 0:
+        print("\nTracker Log is empty")
+        return
+
+    for job in tracker.values():
+        print(job.job_id, job.company_name, job.job_title, job.url, job.status, job.date_applied, job.last_updated)
+        print("-" * 30)
+
 
 def update():
     pass
@@ -45,9 +52,11 @@ while True:
             # C.R.U.D
             # Create
             if ask == "1":
+                print("*** Creating Job Log ***")
                 create()
             # Read
             elif ask == "2":
+                print("*** Reading Job Log ***")
                 read()
             # Update
             elif ask == "3":
