@@ -32,7 +32,7 @@ def update():
         print(f"You are updating: {tracker[job_search].company_name}")
 
         print("What would you like to change?")
-        choice = int(input("1. Update: Job Title\n2. Update: Url\n3. Update: Status\n4. Update: Date Updated"))
+        choice = int(input("1. Update: Job Title\n2. Update: Url\n3. Update: Status\n4. Update: Date Updated\n"))
 
         if choice == 1:
             new_Job_title = input("Enter Updated Job Title:\n")
@@ -55,7 +55,17 @@ def update():
         print("No log associated with that job ID\n")
 
 def delete():
-    pass
+    job_delete = int(input("Enter the Job ID you want to DELETE:\n"))
+    if job_delete in tracker:
+        confirm = input(f"ARE YOU SURE YOU WANT TO DELETE THE JOB LOG: {job_delete}?\n type \"YES\" to confirm. Enter anything else to exit.")
+        if confirm == "YES":
+            del tracker[job_delete]
+            print("Log has been deleted.")
+        else:
+            print("You've chosen to not delete any log.")
+    else:
+        print("No log associated with that job ID\n")
+
 
 
 # ============== Core Logic ==============
@@ -85,10 +95,12 @@ while True:
                 read()
             # Update
             elif ask == "3":
+                print("*** Updating Job Log ***")
                 update()
             # Delete
             elif ask == "4":
-                pass
+                print("*** Deleting Job Log ***")
+                delete()
             # Return to Main Menu
             elif ask == "5":
                 print("Returning to Main Menu...\n")
