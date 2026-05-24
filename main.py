@@ -12,8 +12,20 @@ def create():
     company_name = input("Company Name:\n")
     job_title = input("Job Title:\n")
     url = input("URL:\n")
-    status = input("Status:\n")
-    date_applied = input("Date Applied:\n") # use Pythons built in system clock for this
+    status = ""
+    while status == "":
+        ask_status = int(input("Status:\nEnter Status Option:\n1: No Update\n2: Interviewing\n3: Accepted\n4: Rejected\n"))
+        if ask_status == 1:
+            status = "NO UPDATE"
+        elif ask_status == 2:
+            status = "INTERVIEWING"
+        elif ask_status == 3:
+            status = "ACCEPTED"
+        elif ask_status == 4:
+            status = "REJECTED"
+        else:
+            print("Invalid Status Input!")
+    date_applied = input("Date Applied:\n")
     last_updated = input("Date Updated:\n")
 
     tracker[id_count] = jobs.Job_Application(id_count, company_name, job_title, url, status, date_applied, last_updated)
@@ -46,7 +58,20 @@ def update():
             tracker[job_search].url = new_URL
             print(f"URL updated to {new_URL}")
         elif choice == 3:
-            new_status = input("Enter Updated Status\n")
+            new_status = ""
+            while new_status == "":
+                ask_status = int(input("New Status:\nEnter New Status Option:\n1: No Update\n2: Interviewing\n3: Accepted\n4: Rejected\n"))
+                if ask_status == 1:
+                    new_status = "NO UPDATE"
+                elif ask_status == 2:
+                    new_status = "INTERVIEWING"
+                elif ask_status == 3:
+                    new_status = "ACCEPTED"
+                elif ask_status == 4:
+                    new_status = "REJECTED"
+                else:
+                    print("Invalid New Status Input!")
+
             tracker[job_search].status = new_status
             print(f"Status updated to {new_status}")
         elif choice == 4:
