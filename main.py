@@ -4,7 +4,10 @@ tracker = {}
 # C.R.U.D
 
 def create():
-    id_count = len(tracker) + 1
+    if not tracker:
+        id_count = 1
+    else:
+        id_count = max(tracker) + 1
 
     company_name = input("Company Name:\n")
     job_title = input("Job Title:\n")
