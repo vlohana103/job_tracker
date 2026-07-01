@@ -1,144 +1,197 @@
+
+import json
 import jobs
-
+ 
+DATA_FILE = "tracker.json"
+ 
 tracker = {}
-# C.R.U.D
-
+ 
+# ============== Persistence ==============
+ 
+def save():
+    data = [job.to_dict() for job in tracker.values()]
+    with open(DATA_FILE, "w") as f:
+        json.dump(data, f, indent=2)
+ 
+def load():
+    try:
+        with open(DATA_FILE, "r") as f:
+            data = json.load(f)
+        for entry in data:
+            job = jobs.Job_Application.from_dict(entry)
+            tracker[job.job_id] = job
+    except FileNotFoundError:
+        pass  # First run — no file yet, start with empty tracker
+    except (json.JSONDecodeError, KeyError):
+        print("Warning: tracker data file could not be read. Starting fresh.")
+ 
+# ============== Status Helper ==============
+ 
+STATUS_MAP = {
+    "1": "NO UPDATE",
+    "2": "INTERVIEWING",
+    "3": "ACCEPTED",
+    "4": "REJECTED"
+}
+ 
+STATUS_PROMPT = (
+    "Enter Status Option:\n"
+    " 1: No Update\n"
+    " 2: Interviewing\n"
+    " 3: Accepted\n"
+    " 4: Rejected\n"
+)
+ 
+def get_status():
+    while True:
+        choice = input(STATUS_PROMPT).strip()
+        if choice in STATUS_MAP:
+            return STATUS_MAP[choice]
+        print("Invalid option. Please enter 1, 2, 3, or 4.")
+ 
+# ============== C.R.U.D ==============
+ 
 def create():
-    if not tracker:
-        id_count = 1
-    else:
-        id_count = max(tracker) + 1
-
-    company_name = input("Company Name:\n")
-    job_title = input("Job Title:\n")
-    url = input("URL:\n")
-    status = ""
-    while status == "":
-        ask_status = int(input("Status:\nEnter Status Option:\n1: No Update\n2: Interviewing\n3: Accepted\n4: Rejected\n"))
-        if ask_status == 1:
-            status = "NO UPDATE"
-        elif ask_status == 2:
-            status = "INTERVIEWING"
-        elif ask_status == 3:
-            status = "ACCEPTED"
-        elif ask_status == 4:
-            status = "REJECTED"
-        else:
-            print("Invalid Status Input!")
-    date_applied = input("Date Applied:\n")
-    last_updated = input("Date Updated:\n")
-
-    tracker[id_count] = jobs.Job_Application(id_count, company_name, job_title, url, status, date_applied, last_updated)
-
-
+    job_id = 1 if not tracker else max(tracker) + 1
+ 
+    company_name = input("Company Name:\n").strip()
+    job_title = input("Job Title:\n").strip()
+    url = input("URL:\n").strip()
+    status = get_status()
+    date_applied = input("Date Applied:\n").strip()
+    last_updated = input("Date Last Updated:\n").strip()
+ 
+    tracker[job_id] = jobs.Job_Application(
+        job_id, company_name, job_title, url, status, date_applied, last_updated
+    )
+    save()
+    print(f"\nJob log #{job_id} created for {company_name}.\n")
+ 
+ 
 def read():
-    if len(tracker) == 0:
-        print("\nTracker Log is empty")
+    if not tracker:
+        print("\nTracker log is empty.\n")
         return
-
+ 
+    print()
+    print("-" * 70)
     for job in tracker.values():
-        print(job.job_id, job.company_name, job.job_title, job.url, job.status, job.date_applied, job.last_updated)
-        print("-" * 30)
-
-
+        print(f"ID:           {job.job_id}")
+        print(f"Company:      {job.company_name}")
+        print(f"Job Title:    {job.job_title}")
+        print(f"URL:          {job.url}")
+        print(f"Status:       {job.status}")
+        print(f"Date Applied: {job.date_applied}")
+        print(f"Last Updated: {job.last_updated}")
+        print("-" * 70)
+    print()
+ 
+ 
 def update():
-    job_search = int(input("Enter the JOB ID you would like to update:\n"))
-    if job_search in tracker:
-        print(f"You are updating: {tracker[job_search].company_name}")
-
-        print("What would you like to change?")
-        choice = int(input("1. Update: Job Title\n2. Update: Url\n3. Update: Status\n4. Update: Date Updated\n"))
-
-        if choice == 1:
-            new_Job_title = input("Enter Updated Job Title:\n")
-            tracker[job_search].job_title = new_Job_title
-            print(f"Job Title updated to {new_Job_title}")
-        elif choice == 2:
-            new_URL = input("Enter Updated URL\n")
-            tracker[job_search].url = new_URL
-            print(f"URL updated to {new_URL}")
-        elif choice == 3:
-            new_status = ""
-            while new_status == "":
-                ask_status = int(input("New Status:\nEnter New Status Option:\n1: No Update\n2: Interviewing\n3: Accepted\n4: Rejected\n"))
-                if ask_status == 1:
-                    new_status = "NO UPDATE"
-                elif ask_status == 2:
-                    new_status = "INTERVIEWING"
-                elif ask_status == 3:
-                    new_status = "ACCEPTED"
-                elif ask_status == 4:
-                    new_status = "REJECTED"
-                else:
-                    print("Invalid New Status Input!")
-
-            tracker[job_search].status = new_status
-            print(f"Status updated to {new_status}")
-        elif choice == 4:
-            new_Date = input("Enter Updated Date\n")
-            tracker[job_search].last_updated = new_Date
-            print(f"Last Updated field changed to {new_Date}")
-
+    try:
+        job_id = int(input("Enter the Job ID you would like to update:\n"))
+    except ValueError:
+        print("Please enter a valid numeric ID.\n")
+        return
+ 
+    if job_id not in tracker:
+        print("No log associated with that Job ID.\n")
+        return
+ 
+    job = tracker[job_id]
+    print(f"Updating: {job.company_name} — {job.job_title}")
+ 
+    try:
+        choice = int(input(
+            "What would you like to change?\n"
+            " 1. Job Title\n"
+            " 2. URL\n"
+            " 3. Status\n"
+            " 4. Date Last Updated\n"
+        ))
+    except ValueError:
+        print("Please enter a number.\n")
+        return
+ 
+    if choice == 1:
+        job.job_title = input("Enter updated Job Title:\n").strip()
+        print(f"Job Title updated to: {job.job_title}")
+    elif choice == 2:
+        job.url = input("Enter updated URL:\n").strip()
+        print(f"URL updated to: {job.url}")
+    elif choice == 3:
+        job.status = get_status()
+        print(f"Status updated to: {job.status}")
+    elif choice == 4:
+        job.last_updated = input("Enter updated date:\n").strip()
+        print(f"Last Updated set to: {job.last_updated}")
     else:
-        print("No log associated with that job ID\n")
-
+        print("Invalid option.\n")
+        return
+ 
+    save()
+    print()
+ 
+ 
 def delete():
-    job_delete = int(input("Enter the Job ID you want to DELETE:\n"))
-    if job_delete in tracker:
-        confirm = input(f"ARE YOU SURE YOU WANT TO DELETE THE JOB LOG: {job_delete}?\n type \"YES\" to confirm. Enter anything else to exit.")
-        if confirm == "YES":
-            del tracker[job_delete]
-            print("Log has been deleted.")
-        else:
-            print("You've chosen to not delete any log.")
+    try:
+        job_id = int(input("Enter the Job ID you want to DELETE:\n"))
+    except ValueError:
+        print("Please enter a valid numeric ID.\n")
+        return
+ 
+    if job_id not in tracker:
+        print("No log associated with that Job ID.\n")
+        return
+ 
+    confirm = input(
+        f"Are you sure you want to delete log #{job_id} "
+        f"({tracker[job_id].company_name})? Type YES to confirm:\n"
+    )
+    if confirm == "YES":
+        del tracker[job_id]
+        save()
+        print("Log deleted.\n")
     else:
-        print("No log associated with that job ID\n")
-
-
-
+        print("Delete cancelled.\n")
+ 
+ 
 # ============== Core Logic ==============
-
+ 
+load()
+ 
 welcome = "Welcome to the Job Application Tracker"
 print("*" * len(welcome))
 print(welcome)
 print("*" * len(welcome))
 print()
-
+ 
 while True:
-    print("*** Main Menu ***")
-    enter = input("Press Y to begin or N to exit\n").lower()
-
-    if enter == "y":
-        while True:
-            print("*** Using Job Application Tracker ***")
-            ask = input("Press:\n 1 to Add\n 2 to View\n 3 to Update\n 4 to Delete\n 5 to Return to the Main Menu?\n")
-            # C.R.U.D
-            # Create
-            if ask == "1":
-                print("*** Creating Job Log ***")
-                create()
-            # Read
-            elif ask == "2":
-                print("*** Reading Job Log ***")
-                read()
-            # Update
-            elif ask == "3":
-                print("*** Updating Job Log ***")
-                update()
-            # Delete
-            elif ask == "4":
-                print("*** Deleting Job Log ***")
-                delete()
-            # Return to Main Menu
-            elif ask == "5":
-                print("Returning to Main Menu...\n")
-                break
-            # Invalid Input
-            else:
-                print("Invalid Input... \n")
-
-    elif enter == "n":
-        print("Exiting the Job Application Tracker...")
+    ask = input(
+        "*** Main Menu ***\n"
+        " 1. Add job log\n"
+        " 2. View all logs\n"
+        " 3. Update a log\n"
+        " 4. Delete a log\n"
+        " 5. Exit\n"
+    ).strip()
+ 
+    if ask == "1":
+        print("*** Creating Job Log ***")
+        create()
+    elif ask == "2":
+        print("*** Viewing Job Logs ***")
+        read()
+    elif ask == "3":
+        print("*** Updating Job Log ***")
+        update()
+    elif ask == "4":
+        print("*** Deleting Job Log ***")
+        delete()
+    elif ask == "5":
+        print("Exiting Job Application Tracker. Goodbye!")
         break
     else:
-        print("Invalid Input. Please enter Y or N\n")
+        print("Invalid input. Please enter 1–5.\n")
+
+
